@@ -1,0 +1,60 @@
+{% extends "core/base.html" %}
+{% block title %}2FA 설정 - CrackMeBoard{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <h2 class="mb-4">2차 인증 (TOTP) 설정</h2>
+
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h5>QR 코드 스캔</h5>
+                <p class="text-muted small">Google Authenticator, Authy 등으로 스캔하세요.</p>
+                <img src="data:image/png;base64,{{ qr_data }}" alt="QR Code" class="img-fluid mb-3" style="max-width: 200px;">
+                <div class="alert alert-secondary small">
+                    <strong>수동 입력:</strong> <code>{{ secret }}</code>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" id="2fa-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="code" class="form-label">인증 코드 (6자리)</label>
+                <input type="text" class="form-control" id="code" name="code"
+                       pattern="[0-9]{6}" maxlength="6" placeholder="000000" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100">2FA 활성화</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('2fa-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+    try {
+        const res = await fetch('{{ url_for("auth.setup_2fa") }}', {
+            method: 'POST',
+            headers: {'X-CSRFToken': form.csrf_token.value},
+            body: data
+        });
+        const json = await res.json();
+        if (res.ok) {
+            window.location.href = '{{ url_for("core.index") }}';
+        } else {
+            showAlert(json.error || '확인 실패', 'danger');
+        }
+    } catch (err) {
+        showAlert('서버 오류가 발생했습니다.', 'danger');
+    }
+});
+function showAlert(msg, type) {
+    const div = document.createElement('div');
+    div.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+    div.innerHTML = `${msg}<button class="btn-close" data-bs-dismiss="alert"></button>`;
+    document.querySelector('main').prepend(div);
+}
+</script>
+{% endblock %}

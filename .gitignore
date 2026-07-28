@@ -1,0 +1,26 @@
+# CrackMeBoard — Web Wargame Board
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Secrets
+.env
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+mysql_data/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,54 @@
+{% extends "core/base.html" %}
+{% block title %}{{ post.title }} - CrackMeBoard{% endblock %}
+{% block content %}
+<article>
+    <header class="mb-4">
+        <h2>{{ post.title }}</h2>
+        <div class="text-muted small">
+            <span>작성자: {{ post.author.username }}</span> |
+            <span>{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            {% if post.updated_at != post.created_at %}
+            <span>(수정됨: {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }})</span>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="card">
+        <div class="card-body">
+            {{ post.content | safe }}
+        </div>
+    </div>
+
+    {% if current_user.is_authenticated and current_user.id == post.user_id %}
+    <div class="mt-3">
+        <a href="{{ url_for('board.edit', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary">수정</a>
+        <button class="btn btn-sm btn-outline-danger" onclick="deletePost({{ post.id }})">삭제</button>
+    </div>
+    {% endif %}
+
+    <div class="mt-3">
+        <a href="{{ url_for('board.index') }}" class="btn btn-sm btn-outline-primary">목록</a>
+    </div>
+</article>
+{% endblock %}
+{% block scripts %}
+<script>
+async function deletePost(postId) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    const csrf = document.querySelector('meta[name="csrf-token"]').content;
+    try {
+        const res = await fetch(`/board/${postId}/delete`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': csrf}
+        });
+        if (res.ok) {
+            window.location.href = '{{ url_for("board.index") }}';
+        } else {
+            alert('삭제에 실패했습니다.');
+        }
+    } catch (err) {
+        alert('서버 오류가 발생했습니다.');
+    }
+}
+</script>
+{% endblock %}
