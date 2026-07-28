@@ -1,0 +1,74 @@
+{% extends "core/base.html" %}
+{% block title %}회원가입 - CrackMeBoard{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <h2 class="mb-4">회원가입</h2>
+        <form method="POST" id="register-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="email" class="form-label">이메일</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">사용자명</label>
+                <input type="text" class="form-control" id="username" name="username"
+                       minlength="3" maxlength="50" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">비밀번호</label>
+                <input type="password" class="form-control" id="password" name="password"
+                       minlength="8" required>
+            </div>
+            <div class="mb-3">
+                <label for="password_confirm" class="form-label">비밀번호 확인</label>
+                <input type="password" class="form-control" id="password_confirm" name="password_confirm"
+                       minlength="8" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">가입하기</button>
+        </form>
+        <p class="mt-3 text-center">
+            이미 계정이 있나요? <a href="{{ url_for('auth.login') }}">로그히</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('register-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+
+    if (form.password.value !== form.password_confirm.value) {
+        showAlert('비밀번호가 일치하지 않습니다.', 'danger');
+        return;
+    }
+
+    const data = new FormData(form);
+    try {
+        const res = await fetch('{{ url_for("auth.register") }}', {
+            method: 'POST',
+            headers: {'X-CSRFToken': form.csrf_token.value},
+            body: data
+        });
+        const json = await res.json();
+
+        if (res.ok) {
+            window.location.href = '{{ url_for("auth.login") }}';
+        } else {
+            const errors = json.errors || [json.error || '회원가입 실패'];
+            errors.forEach(e => showAlert(e, 'danger'));
+        }
+    } catch (err) {
+        showAlert('서버 오류가 발생했습니다.', 'danger');
+    }
+});
+
+function showAlert(msg, type) {
+    const div = document.createElement('div');
+    div.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+    div.innerHTML = `${msg}<button class="btn-close" data-bs-dismiss="alert"></button>`;
+    document.querySelector('main').prepend(div);
+}
+</script>
+{% endblock %}

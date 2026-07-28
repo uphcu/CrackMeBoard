@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+{% block title %}CrackMeBoard - 홈{% endblock %}
+{% block content %}
+<div class="text-center mt-5">
+    <h1>터보시게시판</h1>
+    <p class="lead text-muted">CrackMeBoard — 보안 동아리 웹 공방전</p>
+    <div class="mt-4">
+        <a href="{{ url_for('board.index') }}" class="btn btn-primary btn-lg me-2">게시판</a>
+        {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg">로그인</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

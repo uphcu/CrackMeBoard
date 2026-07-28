@@ -1,0 +1,65 @@
+{% extends "core/base.html" %}
+{% block title %}로그인 - CrackMeBoard{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <h2 class="mb-4">로그히</h2>
+        <form method="POST" id="login-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="email" class="form-label">이메일</label>
+                <input type="email" class="form-control" id="email" name="email" required autofocus>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">비밀번호</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="mb-3 d-none" id="otp-field">
+                <label for="totp_code" class="form-label">2FA 코드 (6자리)</label>
+                <input type="text" class="form-control" id="totp_code" name="totp_code"
+                       pattern="[0-9]{6}" maxlength="6" placeholder="000000">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">로그인</button>
+        </form>
+        <p class="mt-3 text-center">
+            계이 없나요? <a href="{{ url_for('auth.register') }}">회원가입</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+
+    try {
+        const res = await fetch('{{ url_for("auth.login") }}', {
+            method: 'POST',
+            headers: {'X-CSRFToken': form.csrf_token.value},
+            body: data
+        });
+        const json = await res.json();
+
+        if (res.ok) {
+            window.location.href = json.next || '{{ url_for("board.index") }}';
+        } else if (json.require_2fa) {
+            document.getElementById('otp-field').classList.remove('d-none');
+            showAlert(json.error || '2FA 코드가 필요합니다.', 'warning');
+        } else {
+            showAlert(json.error || '로그인 실패', 'danger');
+        }
+    } catch (err) {
+        showAlert('서버 오류가 발생했습니다.', 'danger');
+    }
+});
+
+function showAlert(msg, type) {
+    const div = document.createElement('div');
+    div.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+    div.innerHTML = `${msg}<button class="btn-close" data-bs-dismiss="alert"></button>`;
+    document.querySelector('main').prepend(div);
+}
+</script>
+{% endblock %}

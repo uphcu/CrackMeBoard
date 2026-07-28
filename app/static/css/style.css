@@ -1,0 +1,23 @@
+/* CrackMeBoard Custom Styles */
+
+body {
+    background-color: #f8f9fa;
+}
+
+nav.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.list-group-item:hover {
+    background-color: #f1f3f5;
+}
+
+.card {
+    border-radius: 0.5rem;
+}
+
+/* XSS-safe content display */
+.card-body img {
+    max-width: 100%;
+    height: auto;
+}

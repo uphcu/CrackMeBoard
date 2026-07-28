@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% block title %}글 수정 - CrackMeBoard{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">글 수정</h2>
+        <form method="POST" id="edit-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="title" class="form-label">제목</label>
+                <input type="text" class="form-control" id="title" name="title"
+                       value="{{ post.title }}" maxlength="200" required>
+            </div>
+            <div class="mb-3">
+                <label for="content" class="form-label">내용</label>
+                <textarea class="form-control" id="content" name="content" rows="10" required>{{ post.content }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">수정</button>
+            <a href="{{ url_for('board.view', post_id=post.id) }}" class="btn btn-secondary">취소</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('edit-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+    try {
+        const res = await fetch('{{ url_for("board.edit", post_id=post.id) }}', {
+            method: 'POST',
+            headers: {'X-CSRFToken': form.csrf_token.value},
+            body: data
+        });
+        const json = await res.json();
+        if (res.ok) {
+            window.location.href = '{{ url_for("board.view", post_id=post.id) }}';
+        } else {
+            alert(json.error || '수정 실패');
+        }
+    } catch (err) {
+        alert('서버 오류가 발생했습니다.');
+    }
+});
+</script>
+{% endblock %}
