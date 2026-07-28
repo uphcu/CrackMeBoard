@@ -1,6 +1,6 @@
-# CrackMeBoard (터어보시게시판)
+# CrackMeBoard (털어보시게시판)
 
-보안 동아리 웹 공방전용 회원제 게시판 서비스.
+회원제 게시판 서비스.
 
 ## 기술 스택
 
@@ -21,7 +21,6 @@
 - **SQLi 방지**: SQLAlchemy prepared statements
 - **IDOR 방지**: 게시글 소유자 검증
 - **Rate Limiting**: 로그인 5회/분 per IP+username
-- **허니팟**: 가짜 관리자 경로 탐지 및 404 응답
 - **보안 헤더**: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy
 
 ## 구조
@@ -33,7 +32,7 @@ crackmeboard/
 │   ├── models.py          # User, LoginLog, Post 모델
 │   ├── auth/              # 로그인/회원가입/2FA
 │   ├── board/             # 게시판 CRUD
-│   ├── core/              # 메인 페이지 + 허니팫
+│   ├── core/              # 메인 페이지
 │   ├── templates/         # Jinja2 템플릿
 │   └── static/            # CSS/JS
 ├── crackmeboard.service   # systemd unit (Gunicorn)
@@ -52,7 +51,7 @@ pip install -r requirements.txt
 gunicorn -w 2 -b 127.0.0.1:8000 app:create_app()
 
 # Nginx (별도)
-sudo cp crackmeboard.nginx.conf /etc/nginx/sites-available/crackmeboard
+sudo dp crackmeboard.nginx.conf /etc/nginx/sites-available/crackmeboard
 sudo ln -s /etc/nginx/sites-available/crackmeboard /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 ```
@@ -60,11 +59,6 @@ sudo systemctl restart nginx
 ## 환경 변수
 
 ```bash
-SECRET_KEY=your-secret-key-here
-DATABASE_URL=sqlite:///instance/crackmeboard.db  # optional, SQLite default
+SECRET_KEY=your-s...d.db  # optional, SQLite default
 TOTP_ISSUER=CrackMeBoard
 ```
-
-## 라이선스
-
-MIT
