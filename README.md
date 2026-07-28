@@ -1,4 +1,4 @@
-# CrackMeBoard (터보시게시판)
+# CrackMeBoard (터어보시게시판)
 
 보안 동아리 웹 공방전용 회원제 게시판 서비스.
 
@@ -33,7 +33,7 @@ crackmeboard/
 │   ├── models.py          # User, LoginLog, Post 모델
 │   ├── auth/              # 로그인/회원가입/2FA
 │   ├── board/             # 게시판 CRUD
-│   ├── core/              # 메인 페이지 + 허니팟
+│   ├── core/              # 메인 페이지 + 허니팫
 │   ├── templates/         # Jinja2 템플릿
 │   └── static/            # CSS/JS
 ├── crackmeboard.service   # systemd unit (Gunicorn)
@@ -60,7 +60,7 @@ sudo systemctl restart nginx
 ## 환경 변수
 
 ```bash
-SECRET_KEY=your-secret-key
+SECRET_KEY=your-secret-key-here
 DATABASE_URL=sqlite:///instance/crackmeboard.db  # optional, SQLite default
 TOTP_ISSUER=CrackMeBoard
 ```
