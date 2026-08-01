@@ -22,7 +22,7 @@ def create_app():
 
     # Config
     basedir = os.path.abspath(os.path.dirname(__file__))
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "change-me-in-production")
+    app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
         "DATABASE_URL",
         f"sqlite:///{os.path.join(os.path.dirname(basedir), 'instance', 'crackmeboard.db')}",
