@@ -5,6 +5,20 @@
     <div class="col-md-5">
         <h2 class="mb-4">2차 인증 (TOTP) 설정</h2>
 
+        {% if current_user.totp_enabled %}
+        <div class="alert alert-success mb-4">
+            <strong>2FA가 활성화되어 있습니다.</strong>
+        </div>
+        <form method="POST" id="disable-2fa-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="disable_code" class="form-label">해제하려면 현재 인증 코드를 입력하세요</label>
+                <input type="text" class="form-control" id="disable_code" name="code"
+                       pattern="[0-9]{6}" maxlength="6" placeholder="000000" required>
+            </div>
+            <button type="submit" class="btn btn-danger w-100">2FA 비활성화</button>
+        </form>
+        {% else %}
         <div class="card mb-4">
             <div class="card-body text-center">
                 <h5>QR 코드 스캔</h5>
@@ -25,10 +39,41 @@
             </div>
             <button type="submit" class="btn btn-success w-100">2FA 활성화</button>
         </form>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
 {% block scripts %}
+{% if current_user.totp_enabled %}
+<script>
+document.getElementById('disable-2fa-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+    try {
+        const res = await fetch('{{ url_for("auth.disable_2fa") }}', {
+            method: 'POST',
+            headers: {'X-CSRFToken': form.csrf_token.value},
+            body: data
+        });
+        const json = await res.json();
+        if (res.ok) {
+            window.location.href = '{{ url_for("core.index") }}';
+        } else {
+            showAlert(json.error || '해제 실패', 'danger');
+        }
+    } catch (err) {
+        showAlert('서버 오류가 발생했습니다.', 'danger');
+    }
+});
+function showAlert(msg, type) {
+    const div = document.createElement('div');
+    div.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+    div.innerHTML = `${msg}<button class="btn-close" data-bs-dismiss="alert"></button>`;
+    document.querySelector('main').prepend(div);
+}
+</script>
+{% else %}
 <script>
 document.getElementById('2fa-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -57,4 +102,5 @@ function showAlert(msg, type) {
     document.querySelector('main').prepend(div);
 }
 </script>
+{% endif %}
 {% endblock %}

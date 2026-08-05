@@ -168,6 +168,24 @@ def setup_2fa():
         return json.dumps({"error": "코드가 올바르지 않습니다."}), 400
 
 
+# ── 2FA Disable ───────────────────────────────────────
+
+@auth_bp.route("/2fa/disable", methods=["POST"])
+@login_required
+def disable_2fa():
+    code = (request.form.get("code") or "").strip()
+    if not current_user.totp_enabled:
+        return json.dumps({"error": "2FA가 활성화되어 있지 않습니다."}), 400
+
+    totp = pyotp.TOTP(current_user.totp_secret)
+    if not totp.verify(code):
+        return json.dumps({"error": "코드가 올바르지 않습니다."}), 400
+
+    current_user.totp_enabled = False
+    db.session.commit()
+    return json.dumps({"message": "2차 인증이 비활성화되었습니다."}), 200
+
+
 # ── Honeypot Routes ───────────────────────────────────
 
 HONEYPOT_PATHS = ["/admin.php", "/wp-admin", "/phpmyadmin", "/.env", "/api/v1/admin"]
