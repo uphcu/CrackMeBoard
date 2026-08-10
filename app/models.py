@@ -60,6 +60,22 @@ class Post(db.Model):
         onupdate=lambda: datetime.now(timezone.utc),
     )
 
+    comments = db.relationship("Comment", backref="post", lazy="dynamic", cascade="all, delete-orphan")
+
+
+class Comment(db.Model):
+    __tablename__ = "comments"
+
+    id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    post_id: int = db.Column(db.Integer, db.ForeignKey("posts.id"), nullable=False, index=True)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    content: str = db.Column(db.Text, nullable=False)
+    created_at: datetime = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc)
+    )
+
+    author = db.relationship("User", backref="comments")
+
 
 @login_manager.user_loader
 def load_user(user_id):
