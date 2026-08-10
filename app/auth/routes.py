@@ -177,6 +177,12 @@ def disable_2fa():
     if not current_user.totp_enabled:
         return json.dumps({"error": "2FA가 활성화되어 있지 않습니다."}), 400
 
+    if not current_user.totp_secret:
+        # healing: secret was lost but enabled flag still on
+        current_user.totp_enabled = False
+        db.session.commit()
+        return json.dumps({"message": "비정상 상태가 복구되었습니다. 다시 설정해주세요."}), 200
+
     totp = pyotp.TOTP(current_user.totp_secret)
     if not totp.verify(code):
         return json.dumps({"error": "코드가 올바르지 않습니다."}), 400
